@@ -1,27 +1,45 @@
-pipeline{
-
+pipeline {
+   
     agent any
-
+  environment{
+     DOCKERHUB_CREDENTIALS=credentials('210668')
+  }
     stages{
-      stage('build'){
-        steps{
-            sh 'npm install'
+        stage('Build'){
+            steps{
+                sh 'npm install'
+
+            }
         }
-
-      }
-
-      stage('test'){
-        steps{
-            sh 'echo "testing the application"'
+        stage('test'){
+            steps{
+                sh 'echo "Test is running"'
+            }
         }
-
-      }
-      stage('deploy'){
-        steps{
-            sh 'echo "deploying the application"'
+        stage('Docker build'){
+            steps{
+                sh 'docker build -t 210668/jenkins-integration:latest .'
+            }
         }
-
-      }
-
+        stage('login'){
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('push'){
+            steps{
+                sh 'docker push 210668/jenkins-integration:latest'
+            }
+        }
+        stage('deploy'){
+            steps{
+                sh 'echo "Deploying the application"'
+            }
+        }
+      
     }
+
+
+
+
 }
